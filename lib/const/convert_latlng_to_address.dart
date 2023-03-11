@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:gmaps/const/const.dart';
 
 class ConvertLatLongToAddress extends StatefulWidget {
   const ConvertLatLongToAddress({super.key});
@@ -10,22 +11,41 @@ class ConvertLatLongToAddress extends StatefulWidget {
 }
 
 class _ConvertLatLongToAddressState extends State<ConvertLatLongToAddress> {
-  String fullAddress = "";
+  late String fullAddress = "";
+  double latitude = 0.0, longitude = 0.0;
+
+  @override
+  void initState() {
+    getUserCurrentLocation().then((value) {
+      setState(() {
+        latitude = value.latitude;
+        longitude = value.longitude;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Convert LatLong to Address")),
+      appBar: AppBar(title: const Text("Convert LatLong to Address")),
       body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: () async {
+              child: ElevatedButton(
+                onPressed: () async {
+                  print("clicked");
+                  getUserCurrentLocation().then((value) {
+                    setState(() {
+                      latitude = value.latitude;
+                      longitude = value.longitude;
+                    });
+                  });
                   List<Placemark> placemarks =
-                      await placemarkFromCoordinates(23.7759703, 90.3991939);
+                      await placemarkFromCoordinates(latitude, longitude);
                   setState(() {
                     fullAddress = placemarks.reversed.last.street.toString() +
                         " " +
@@ -40,7 +60,7 @@ class _ConvertLatLongToAddressState extends State<ConvertLatLongToAddress> {
                 },
                 child: Container(
                   height: 50,
-                  decoration: BoxDecoration(color: Colors.blueAccent),
+                  decoration: BoxDecoration(color: Colors.blue),
                   child: Center(child: Text("Convert")),
                 ),
               ),
